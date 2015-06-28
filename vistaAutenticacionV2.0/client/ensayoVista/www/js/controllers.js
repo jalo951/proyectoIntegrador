@@ -21,13 +21,13 @@ angular.module('login.controllers', ['login.services'])
                 contrasena: contrasena
             }).success(function(data) {
                 console.log('Successs');
-                //rootScope.setToken(email); // create a session kind of thing on the client side
+                $rootScope.setToken(email); // create a session kind of thing on the client side
                 $rootScope.hide();
                 $rootScope.notify("Cargando...");
                 $window.location.href = ('#/list');
             }).error(function(error) {
                 $rootScope.hide();
-                $rootScope.notify("Invalid Username or password");
+                $rootScope.notify(error.error);
             });
         }
     }

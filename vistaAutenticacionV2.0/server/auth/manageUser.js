@@ -61,6 +61,9 @@ module.exports = function(server, db) {
         }, function(err, dbUser) {
 
             if (!dbUser) {
+                res.writeHead(403, {
+                        'Content-Type': 'application/json; charset=utf-8'
+                    });
                 res.end(JSON.stringify({
                         error: "Usuario inválido"
                     }));
@@ -98,7 +101,7 @@ server.get("/list", function (req, res, next) {
         console.log("entró al métogo get");
         validateRequest.validate(req, res, db, function () {
             db.usuarios.find({
-                user : req.params.token
+                _id : req.params.token
             },function (err, list) {
                 res.writeHead(200, {
                     'Content-Type': 'application/json; charset=utf-8'
