@@ -1,3 +1,4 @@
+// Lalalala
 angular.module('login.controllers', ['login.services'])
 
 .controller('loginController', function($rootScope, $scope, API, $window) {
