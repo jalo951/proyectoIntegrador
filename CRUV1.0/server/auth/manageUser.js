@@ -172,5 +172,50 @@ module.exports = function(server, db) {
         });
         return next();
     });
+    server.put('/modificarContrasena', function(req, res, next) {
+        validateRequest.validate(req, res, db, function() {
+            var user = req.params;
+
+            console.log(user);
+            db.usuarios.findOne({
+                _id: req.params.token
+            }, function(err, data) {
+                pwdMgr.comparePassword(user.contrasena, data.contrasena, function(err, isPasswordMatch) {
+                    if (isPasswordMatch) {
+                        console.log('contraseñas coinciden');
+
+                        pwdMgr.cryptPassword(user.contrasenaNueva, function(err, hash) {
+                            user.contrasenaNueva = hash;
+                            db.usuarios.update({
+                                _id: req.params.token
+                            }, {
+                                $set: {
+                                    contrasena: user.contrasenaNueva
+
+                                }
+                            }, {
+                                multi: false
+                            }, function(err, data) {
+                                res.writeHead(200, {
+                                    'Content-Type': 'application/json; charset=utf-8'
+                                });
+                                res.end(JSON.stringify(data));
+                            });
+                        });
+                    } else {
+                        res.writeHead(403, {
+                            'Content-Type': 'application/json; charset=utf-8'
+                        });
+                        res.end(JSON.stringify({
+                            error: "Contraseña Inválida"
+                        }));
+                    }
+                });
+            });
+        });
+        return next();
+    });
+
+
 
 };

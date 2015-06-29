@@ -62,6 +62,15 @@ angular.module('login.services', [])
                         token: email
                     }
                 });
+            },
+
+            modificarContrasena: function(form,email){
+                return $http.put(base+'/modificarContrasena', form, {
+                    method: 'PUT',
+                    params: {
+                        token: email
+                    }
+                });
             }
         }
     });

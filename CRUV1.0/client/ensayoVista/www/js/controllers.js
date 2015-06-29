@@ -104,7 +104,7 @@ angular.module('login.controllers', ['login.services'])
     }
 })
 
-.controller('modificarController', function($rootScope, $scope, API, $window,$ionicPopup) {
+.controller('modificarController', function($rootScope, $scope, API, $window, $ionicPopup) {
 
     $scope.user = {
 
@@ -112,6 +112,13 @@ angular.module('login.controllers', ['login.services'])
         apellido: '',
         genero: '',
         contrasena: ''
+    };
+
+    $scope.userCont = {
+        contrasenaNueva: '',
+        contrasenaRep: '',
+        contrasenaAct: ''
+
     };
 
     $scope.modificarDatos = function(contrasena) {
@@ -122,27 +129,27 @@ angular.module('login.controllers', ['login.services'])
         var genero = this.user.genero;
 
         console.log(contrasena);
-        if (!contrasena || !nombre || !apellido ) {
+        if (!contrasena || !nombre || !apellido) {
 
             $rootScope.show('No se admiten espacios vacíos');
 
         } else {
 
-            
 
-                API.modificarDatos({
-                    contrasena: contrasena,
-                    nombre: nombre,
-                    apellido: apellido,
-                    genero: genero
-                }, $rootScope.getToken()).success(function(data) {
-                    console.log('Successs');
-                    $rootScope.show("Cargando...");
-                    $window.location.href = ('#/list');
-                }).error(function(error) {
-                    $rootScope.show(error.error);
-                });
-            
+
+            API.modificarDatos({
+                contrasena: contrasena,
+                nombre: nombre,
+                apellido: apellido,
+                genero: genero
+            }, $rootScope.getToken()).success(function(data) {
+                console.log('Successs');
+                $rootScope.show("Cargando...");
+                $window.location.href = ('#/list');
+            }).error(function(error) {
+                $rootScope.show(error.error);
+            });
+
         }
     }
     $scope.showPopup = function() {
@@ -173,9 +180,41 @@ angular.module('login.controllers', ['login.services'])
             console.log(res);
             $scope.modificarDatos(res);
         });
-       /* $timeout(function() {
-            myPopup.close(); //close the popup after 3 seconds for some reason
-        }, 100000);*/
+        /* $timeout(function() {
+             myPopup.close(); //close the popup after 3 seconds for some reason
+         }, 100000);*/
     };
+
+    $scope.modificarContrasena = function() {
+
+     var contrasenaNueva = this.userCont.contrasenaNueva;
+     var contrasenaAct = this.userCont.contrasenaAct;
+     var contrasenaRep = this.userCont.contrasenaRep;
+     if (!contrasenaNueva || !contrasenaRep || !contrasenaAct) {
+
+         $rootScope.show('No se admiten espacios vacíos');
+
+     } else {
+         if (contrasenaNueva != contrasenaRep) {
+             $rootScope.show('Las contraseñas ingresadas como nuevas no coinciden ');
+         } else {
+            console.log("contraseñas coinciden");
+             API.modificarContrasena({
+                 contrasena: contrasenaAct,
+                 contrasenaNueva: contrasenaNueva
+
+
+             }, $rootScope.getToken()).success(function(data) {
+                 console.log('Successs');
+                 $rootScope.show("Cargando...");
+                 $window.location.href = ('#/list');
+             }).error(function(error) {
+                 $rootScope.show(error.error);
+             });
+         }
+     }
+
+
+ };
 
 })
