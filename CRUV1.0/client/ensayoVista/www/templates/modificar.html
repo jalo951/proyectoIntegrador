@@ -18,16 +18,9 @@
             </label>
             <ion-radio ng-value="'femenino'" ng-model="user.genero" >Femenino</ion-radio>
             <ion-radio ng-value="'masculino'" ng-model="user.genero">Masculino</ion-radio>
-            <label class="item item-input item-stacked-label">
-                <span class="input-label">Clave</span>
-                <input type="password" ng-model="user.contrasena">
-            </label>
-            <label class="item item-input item-stacked-label">
-                <span class="input-label">Confirmar Clave</span>
-                <input type="password" ng-model="user.contrasenaRep">
-            </label>
+          
             <label class="item item-input item-stacked-label" style="text-align: center;">
-                <button class="button button-assertive" ng-click="modificar()"> Registrar</button>
+                <button class="button button-assertive" ng-click="showPopup()"> Registrar</button>
             </label>
         </div>
     </ion-content>

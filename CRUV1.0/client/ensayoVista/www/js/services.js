@@ -55,8 +55,8 @@ angular.module('login.services', [])
                 return $http.post(base+'/registrar',form);
             },
 
-            modificar: function(form,email){
-                return $http.put(base+'/modificar', form, {
+            modificarDatos: function(form,email){
+                return $http.put(base+'/modificarDatos', form, {
                     method: 'PUT',
                     params: {
                         token: email

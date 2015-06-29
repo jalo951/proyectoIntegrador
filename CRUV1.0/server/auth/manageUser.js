@@ -131,29 +131,42 @@ module.exports = function(server, db) {
 
     //###############################################################################################
 
-    server.put('/modificar', function(req, res, next) {
+    server.put('/modificarDatos', function(req, res, next) {
         validateRequest.validate(req, res, db, function() {
             var user = req.params;
-            console.log(user.nombre);
+
+            console.log(user);
             db.usuarios.findOne({
                 _id: req.params.token
             }, function(err, data) {
-                db.usuarios.update({
-                    _id: req.params.token
-                }, {
-                    $set: {
-                        nombre: user.nombre,
-                        apellido: user.apellido,
-                        genero: user.genero,
-                        contrasena: user.contrasena
+                pwdMgr.comparePassword(user.contrasena, data.contrasena, function(err, isPasswordMatch) {
+                    if (isPasswordMatch) {
+                        console.log('contraseñas coinciden');
+                        db.usuarios.update({
+                            _id: req.params.token
+                        }, {
+                            $set: {
+                                nombre: user.nombre,
+                                apellido: user.apellido,
+                                genero: user.genero
+
+                            }
+                        }, {
+                            multi: false
+                        }, function(err, data) {
+                            res.writeHead(200, {
+                                'Content-Type': 'application/json; charset=utf-8'
+                            });
+                            res.end(JSON.stringify(data));
+                        });
+                    } else {
+                        res.writeHead(403, {
+                            'Content-Type': 'application/json; charset=utf-8'
+                        });
+                        res.end(JSON.stringify({
+                            error: "Contraseña Inválida"
+                        }));
                     }
-                }, {
-                    multi: false
-                }, function(err, data) {
-                    res.writeHead(200, {
-                        'Content-Type': 'application/json; charset=utf-8'
-                    });
-                    res.end(JSON.stringify(data));
                 });
             });
         });

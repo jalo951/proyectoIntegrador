@@ -44,7 +44,7 @@ angular.module('login.controllers', ['login.services'])
             $rootScope.show("Oops something went wrong!! Please try again later");
         });
     }
-    $scope.irModificar = function(){
+    $scope.irModificar = function() {
         $window.location.href = ('#/modificar');
     }
 })
@@ -104,49 +104,78 @@ angular.module('login.controllers', ['login.services'])
     }
 })
 
-.controller('modificarController', function($rootScope, $scope, API, $window) {
+.controller('modificarController', function($rootScope, $scope, API, $window,$ionicPopup) {
 
     $scope.user = {
-        
+
         nombre: '',
         apellido: '',
         genero: '',
-        contrasenaRep: '',
         contrasena: ''
     };
 
-    $scope.modificar = function() {
-        
-        var contrasena = this.user.contrasena;
+    $scope.modificarDatos = function(contrasena) {
+
+        var contrasena = contrasena;
         var nombre = this.user.nombre;
         var apellido = this.user.apellido;
         var genero = this.user.genero;
-        var contrasenaRep = this.user.contrasenaRep;
 
-        console.log(genero);
-        if (!contrasena || !nombre || !apellido || !contrasenaRep) {
+        console.log(contrasena);
+        if (!contrasena || !nombre || !apellido ) {
 
             $rootScope.show('No se admiten espacios vacíos');
 
         } else {
 
-            if (contrasenaRep != contrasena) {
-                $rootScope.show('Las contraseñas no coinciden');
-            } else {
+            
 
-                API.modificar({
+                API.modificarDatos({
                     contrasena: contrasena,
                     nombre: nombre,
                     apellido: apellido,
                     genero: genero
-                },$rootScope.getToken()).success(function(data) {
+                }, $rootScope.getToken()).success(function(data) {
                     console.log('Successs');
                     $rootScope.show("Cargando...");
-                    $window.location.href = ('#/entrar');
+                    $window.location.href = ('#/list');
                 }).error(function(error) {
                     $rootScope.show(error.error);
                 });
-            }
+            
         }
     }
+    $scope.showPopup = function() {
+        $scope.data = {}
+
+        // An elaborate, custom popup
+        var myPopup = $ionicPopup.show({
+            template: '<input type="password" ng-model="data.contrasena">',
+            title: 'Confirmación',
+            subTitle: 'Ingrese la contraseña para confirmar los cambios',
+            scope: $scope,
+            buttons: [{
+                text: 'Cancelar'
+            }, {
+                text: '<b>Aceptar</b>',
+                type: 'button-positive',
+                onTap: function(e) {
+                    if (!$scope.data.contrasena) {
+                        //don't allow the user to close unless he enters wifi password
+                        e.preventDefault();
+                    } else {
+                        return $scope.data.contrasena;
+                    }
+                }
+            }]
+        });
+        myPopup.then(function(res) {
+            console.log(res);
+            $scope.modificarDatos(res);
+        });
+       /* $timeout(function() {
+            myPopup.close(); //close the popup after 3 seconds for some reason
+        }, 100000);*/
+    };
+
 })
