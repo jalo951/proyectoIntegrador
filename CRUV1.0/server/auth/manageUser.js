@@ -1,7 +1,18 @@
 var pwdMgr = require('./managePasswords');
 var validateRequest = require("../auth/validateRequest");
+var config = require("../config");
 
-module.exports = function(server, db) {
+module.exports = function(server, db, nodemailer) {
+
+    //variable transporter para el acceso a la cuenta remitente
+    var transporter = nodemailer.createTransport({
+        service: 'Gmail',
+        auth: {
+            user: config.mailer.auth.user,
+            pass: config.mailer.auth.pass
+        }
+    });
+
 
 
     //########################################################################################### 
@@ -49,7 +60,6 @@ module.exports = function(server, db) {
         });
         return next();
     });
-
 
 
 
@@ -136,6 +146,9 @@ module.exports = function(server, db) {
             var user = req.params;
 
             console.log(user);
+            console.log("________________FECHAS_____________");
+            //var fecha = user.
+            //console.log();
             db.usuarios.findOne({
                 _id: req.params.token
             }, function(err, data) {
@@ -172,6 +185,9 @@ module.exports = function(server, db) {
         });
         return next();
     });
+
+    //###############################################################################################
+
     server.put('/modificarContrasena', function(req, res, next) {
         validateRequest.validate(req, res, db, function() {
             var user = req.params;
@@ -216,6 +232,73 @@ module.exports = function(server, db) {
         return next();
     });
 
+    //###############################################################################################
+    server.post('/resetPassword', function(req, res, next) {
 
+        var user = req.params;
+
+        //console.log("in");
+        db.usuarios.findOne({
+            _id: req.params.email
+        }, function(err, dbUser) {
+
+            if (!dbUser) {
+                res.writeHead(403, {
+                    'Content-Type': 'application/json; charset=utf-8'
+                });
+                res.end(JSON.stringify({
+                    error: "No existe un usuario registrado con este email"
+                }));
+            } else {
+
+                var pToken = {
+                    token: user.email,
+                    fechaCreacion: new Date() //Mirar restar fechas :D
+                };
+
+                db.usuarios.update({
+                    _id: req.params.email
+                }, {
+                    $set: {
+                        passwordToken: pToken
+                    }
+                }, {
+                    multi: false
+                }, function(err, data) {
+                    res.writeHead(200, {
+                        'Content-Type': 'application/json; charset=utf-8'
+                    });
+                    res.end(JSON.stringify(data));
+                });
+
+                //Enviar correo
+
+
+                var mailOptions = {
+                    from: config.mailer.defaultFromAddress, // sender address
+                    to: user.email, // list of receivers
+                    subject: 'Recuperar contraseña ✔', // Subject line
+                    text: 'Hola, ' + dbUser.nombre + ', con este correo podrás reestablecer tu password.', // plaintext body
+                    html: '' // html body
+                };
+
+                transporter.sendMail(mailOptions, function(error, info){
+                    if(error){
+                        console.log(error);
+                    }else{
+                        console.log('Message sent: ' + info.response);
+                    }
+                });
+
+
+
+            }
+
+
+
+        });
+        return next();
+
+    });
 
 };
